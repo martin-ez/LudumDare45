@@ -11,10 +11,7 @@ public class AudioManager : MonoBehaviour
 
     AudioSource sfx;
     AudioSource atmosphericSource;
-    AudioSource baseSongSource;
-    AudioSource beatSource;
-    AudioSource chordsSource;
-    AudioSource melodySource;
+    AudioSource pianoHitsSource;
 
     public enum Sound
     {
@@ -23,19 +20,19 @@ public class AudioManager : MonoBehaviour
 
     [Header("Song Clips")]
     public AudioClip atmospheric;
-    public AudioClip pianoHits;
+    public AudioClip[] pianoHits;
 
     [Header("Fx Clips")]
     public AudioClip action;
 
-    private static bool created = false;
+    public static AudioManager instance = null;
 
     void Awake()
     {
-        if (!created)
+        if (instance == null)
         {
             DontDestroyOnLoad(this.gameObject);
-            created = true;
+            instance = this;
 
             GameObject sfx2DS = new GameObject("SFX_Source");
             sfx = sfx2DS.AddComponent<AudioSource>();
@@ -45,27 +42,13 @@ public class AudioManager : MonoBehaviour
             GameObject source1 = new GameObject("MusicSource atmospheric");
             atmosphericSource = source1.AddComponent<AudioSource>();
             atmosphericSource.volume = 0;
+            atmosphericSource.clip = atmospheric;
             DontDestroyOnLoad(source1.gameObject);
 
-            GameObject source2 = new GameObject("MusicSource baseSong");
-            baseSongSource = source2.AddComponent<AudioSource>();
-            baseSongSource.volume = 0;
+            GameObject source2 = new GameObject("MusicSource pianoHits");
+            pianoHitsSource = source2.AddComponent<AudioSource>();
+            pianoHitsSource.volume = MusicVolume;
             DontDestroyOnLoad(source2.gameObject);
-
-            GameObject source3 = new GameObject("MusicSource beat");
-            beatSource = source3.AddComponent<AudioSource>();
-            beatSource.volume = 0;
-            DontDestroyOnLoad(source3.gameObject);
-
-            GameObject source4 = new GameObject("MusicSource chords");
-            chordsSource = source4.AddComponent<AudioSource>();
-            chordsSource.volume = 0;
-            DontDestroyOnLoad(source4.gameObject);
-
-            GameObject source5 = new GameObject("MusicSource melody");
-            melodySource = source5.AddComponent<AudioSource>();
-            melodySource.volume = 0;
-            DontDestroyOnLoad(source5.gameObject);
 
             StartAtmospheric();
         }
@@ -93,12 +76,30 @@ public class AudioManager : MonoBehaviour
     {
         float timeInterval = 60f / 105f;
         float maxBeats = atmospheric.length / timeInterval;
-        atmosphericSource.clip = atmospheric;
         atmosphericSource.time = Random.Range(0, maxBeats - 1) * timeInterval;
         atmosphericSource.volume = 0f;
         atmosphericSource.loop = true;
         atmosphericSource.Play();
         StartCoroutine(FadeAudio(atmosphericSource, MusicVolume, timeInterval * 8));
+    }
+
+    public void PlayPianoHit()
+    {
+        float timeInterval = (60f / 105f) * 8f;
+        pianoHitsSource.clip = pianoHits[Random.Range(0, pianoHits.Length - 1)];
+        pianoHitsSource.loop = false;
+        StartCoroutine(ReverseAndPlay(pianoHitsSource));
+    }
+
+    IEnumerator ReverseAndPlay(AudioSource source)
+    {
+        pianoHitsSource.pitch = -1;
+        pianoHitsSource.timeSamples = pianoHitsSource.clip.samples - 1;
+        source.Play();
+        while (source.time > 0.1f) yield return null;
+        pianoHitsSource.pitch = 1;
+        pianoHitsSource.time = 0;
+        source.Play();
     }
 
     IEnumerator FadeAudio(AudioSource source, float endVolume, float duration)

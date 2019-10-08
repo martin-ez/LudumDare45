@@ -2,72 +2,121 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Player : MonoBehaviour
 {
-    public Material fowMat;
+    public Material playerMat;
 
-    string keys = "";
-    bool blockedMovement = false;
+    public float movementSpeed = 4f;
 
-    enum PlayerState
+    public Transform model;
+
+    bool blockedMovement = true;
+    private Rigidbody rb;
+    Vector3 forward, right;
+
+    private void Awake()
     {
-        Moving,
-        DDR
+        rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeAll;
     }
 
-    private PlayerState state = PlayerState.Moving;
+    private void Start()
+    {
+        forward = Camera.main.transform.forward;
+        forward.y = 0;
+        forward = Vector3.Normalize(forward);
+        right = Quaternion.Euler(new Vector3(0, 90, 0)) * forward;
+        model.gameObject.SetActive(false);
+        playerMat.SetVector("_dissolve_origin", transform.position);
+        playerMat.SetFloat("_effect", 3);
+    }
+
+    public void Appear()
+    {
+        model.gameObject.SetActive(true);
+        StartCoroutine(AnimateDissolve(true, 6f));
+    }
+
+    public void Disappear()
+    {
+        model.gameObject.SetActive(false);
+    }
+
+    public void Toggle()
+    {
+        blockedMovement = !blockedMovement;
+        rb.constraints = blockedMovement ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.FreezeRotation;
+    }
 
     void Update()
     {
-        keys = "";
-
-        if (Input.GetKey(KeyCode.W)) keys += 'U';
-        if (Input.GetKey(KeyCode.S)) keys += 'D';
-        if (Input.GetKey(KeyCode.A)) keys += 'L';
-        if (Input.GetKey(KeyCode.D)) keys += 'R';
-        Move();
-        fowMat.SetVector("_player_pos", transform.position);
+        if (Input.anyKey) Move();
+        FoWManager.instance.SetVector(FoWManager.PLAYER_POS, transform.position);
+        model.transform.localPosition += Vector3.up * Mathf.Sin(Time.time) * 0.005f;
     }
 
     private void Move()
     {
-        if (!blockedMovement && keys.Length == 1)
+        if (!blockedMovement)
         {
-            char direction = keys[0];
-            Vector3 endPos = transform.position;
-            switch (direction)
-            {
-                case 'U':
-                    endPos += Vector3.forward;
-                    break;
-                case 'D':
-                    endPos += Vector3.back;
-                    break;
-                case 'L':
-                    endPos += Vector3.left;
-                    break;
-                case 'R':
-                    endPos += Vector3.right;
-                    break;
-            }
-            StartCoroutine(Translate(endPos, .2f));
-        }
+            Vector3 rightMov = Input.GetAxis("HorizontalKey") * right * Time.deltaTime * movementSpeed;
+            Vector3 forwardMov = Input.GetAxis("VerticalKey") * forward * Time.deltaTime * movementSpeed;
+
+            Vector3 forwardVector = Vector3.Normalize(rightMov + forwardMov);
+            if (forwardVector != Vector3.zero) transform.forward = forwardVector;
+            transform.position += rightMov;
+            transform.position += forwardMov;
+        }       
     }
 
-    IEnumerator Translate(Vector3 endPos, float duration)
+    public void Restart()
     {
-        blockedMovement = true;
+        StartCoroutine(RecoverAnimation());
+    }
+
+    IEnumerator AnimateDissolve(bool appear, float duration)
+    {
+        float from = appear ? 3 : 0;
+        float to = appear ? 0 : 3;
+
+        playerMat.SetVector("_dissolve_origin", transform.position + (Vector3.up * (appear ? 3f : 0)));
+        playerMat.SetFloat("_effect", from);
+
         float t = 0;
         float time = 0;
-        Vector3 startPos = transform.position;
         while (t < 1)
         {
             time += Time.deltaTime;
             t = time / duration;
-            transform.position = Vector3.Lerp(startPos, endPos, Mathf.SmoothStep(0f, 1f, t));
+            playerMat.SetFloat("_effect", Mathf.Lerp(from, to, t));
             yield return null;
         }
-        transform.position = endPos;
-        blockedMovement = false;
+
+        playerMat.SetFloat("_effect", to);
+    } 
+
+    IEnumerator RecoverAnimation()
+    {
+        Toggle();
+        StartCoroutine(FoWManager.instance.AnimateFocus(true, 30f, 1.5f));
+        yield return StartCoroutine(AnimateDissolve(false, 0.75f));
+
+        float t = 0;
+        float time = 0;
+        Vector3 from = transform.position;
+        while (t < 1)
+        {
+            time += Time.deltaTime;
+            t = time / 1.5f;
+            transform.position = Vector3.Lerp(from, Vector3.zero, t);
+            playerMat.SetVector("_dissolve_origin", transform.position + (Vector3.up * 2));
+            yield return null;
+        }
+
+        transform.position = Vector3.zero;
+        StartCoroutine(FoWManager.instance.AnimateFocus(false, 30f, 1.5f));
+        yield return StartCoroutine(AnimateDissolve(true, 1.5f));
+        Toggle();
     }
 }
