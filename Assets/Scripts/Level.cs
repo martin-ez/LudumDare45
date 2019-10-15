@@ -10,6 +10,7 @@ public class Level : MonoBehaviour
     public Color levelEdgeColor;
     public Collectable[] collectables;
     public Vector3 endTarget;
+    public float startRadius = 3f;
     public float endRaidus = 40f;
     public float radiusIncrease = 2f;
 
@@ -27,12 +28,12 @@ public class Level : MonoBehaviour
         }
     }
 
-    public void RevealMap()
+    public void RevealMap(float time)
     {
         FoWManager.instance.SetColor(FoWManager.BASE_COLOR, levelColor);
         FoWManager.instance.SetColor(FoWManager.EDGE_COLOR, levelEdgeColor);
-        StartCoroutine(FoWManager.instance.AnimateFocus(true, 30, 10f));
-        StartCoroutine(FoWManager.instance.AnimateRadius(0, 3, 10f));
+        StartCoroutine(FoWManager.instance.AnimateFocus(true, 30, time));
+        StartCoroutine(FoWManager.instance.AnimateRadius(0, startRadius, time));
     }
 
     public void StartGame()

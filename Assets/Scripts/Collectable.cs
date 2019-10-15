@@ -56,6 +56,7 @@ public class Collectable : MonoBehaviour
         if (other.GetComponent<Player>() != null)
         {
             FindObjectOfType<Level>().OnItemAdquire();
+            AudioManager.instance.PlaySound(AudioManager.Sound.ItemCollected);
             GameObject effect = Instantiate(collectedEffect, transform.position, Quaternion.identity);
             Destroy(effect, 4f);
             Destroy(gameObject);

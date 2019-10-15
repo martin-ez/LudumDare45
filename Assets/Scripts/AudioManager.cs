@@ -11,19 +11,25 @@ public class AudioManager : MonoBehaviour
 
     AudioSource sfx;
     AudioSource atmosphericSource;
+    AudioSource guitarSource;
+    AudioSource drumsSource;
     AudioSource pianoHitsSource;
 
     public enum Sound
     {
-        Action,
+        Intro,
+        ItemCollected
     }
 
     [Header("Song Clips")]
     public AudioClip atmospheric;
+    public AudioClip guitarLoop;
+    public AudioClip drumLoop;
     public AudioClip[] pianoHits;
 
     [Header("Fx Clips")]
-    public AudioClip action;
+    public AudioClip introSound;
+    public AudioClip itemCollectedSound;
 
     public static AudioManager instance = null;
 
@@ -31,7 +37,6 @@ public class AudioManager : MonoBehaviour
     {
         if (instance == null)
         {
-            DontDestroyOnLoad(this.gameObject);
             instance = this;
 
             GameObject sfx2DS = new GameObject("SFX_Source");
@@ -44,6 +49,14 @@ public class AudioManager : MonoBehaviour
             atmosphericSource.volume = 0;
             atmosphericSource.clip = atmospheric;
             DontDestroyOnLoad(source1.gameObject);
+
+            guitarSource = source1.AddComponent<AudioSource>();
+            guitarSource.volume = 0;
+            guitarSource.clip = guitarLoop;
+
+            drumsSource = source1.AddComponent<AudioSource>();
+            drumsSource.volume = 0;
+            drumsSource.clip = drumLoop;
 
             GameObject source2 = new GameObject("MusicSource pianoHits");
             pianoHitsSource = source2.AddComponent<AudioSource>();
@@ -59,8 +72,11 @@ public class AudioManager : MonoBehaviour
         AudioClip clip = null;
         switch (clipName)
         {
-            case Sound.Action:
-                clip = action;
+            case Sound.Intro:
+                clip = introSound;
+                break;
+            case Sound.ItemCollected:
+                clip = itemCollectedSound;
                 break;
         }
         if (clip != null)
@@ -81,14 +97,27 @@ public class AudioManager : MonoBehaviour
         atmosphericSource.loop = true;
         atmosphericSource.Play();
         StartCoroutine(FadeAudio(atmosphericSource, MusicVolume, timeInterval * 8));
+
+        guitarSource.time = 0;
+        guitarSource.loop = true;
+        guitarSource.Play();
+
+        drumsSource.time = 0;
+        drumsSource.loop = true;
+        drumsSource.Play();
     }
 
     public void PlayPianoHit()
     {
-        float timeInterval = (60f / 105f) * 8f;
         pianoHitsSource.clip = pianoHits[Random.Range(0, pianoHits.Length - 1)];
         pianoHitsSource.loop = false;
         StartCoroutine(ReverseAndPlay(pianoHitsSource));
+    }
+
+    public void StartLevel(int level)
+    {
+        if (level == 2) StartCoroutine(FadeAudio(guitarSource, 0.5f, (60f / 105f) * 16f));
+        else if (level == 3) StartCoroutine(FadeAudio(drumsSource, 0.5f, (60f / 105f) * 16f));
     }
 
     IEnumerator ReverseAndPlay(AudioSource source)

@@ -84,7 +84,7 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     - _edge_thickness: 0.05
-    - _fow_radius: 2
+    - _fow_radius: 80
     - _noise_scale: 2
     - _noise_width: 1
     - _ping_radius: 30
@@ -97,5 +97,5 @@ Material:
     - _base_color: {r: 0.8867924, g: 0, b: 0.00877679, a: 1}
     - _edge_color: {r: 4.7037444, g: 0.4111797, b: 0.3328121, a: 0}
     - _ping_color: {r: 0.8679245, g: 0.18422925, b: 0.18422925, a: 1}
-    - _ping_origin: {r: -32, g: 8, b: 32, a: 0}
+    - _ping_origin: {r: 0, g: 6, b: 15, a: 0}
     - _player_pos: {r: 0, g: 0, b: 0, a: 0}

@@ -25,7 +25,7 @@ Material:
     - Vector1_ACAF8184: 0
     - Vector1_E3E3F7E4: 0
     - _edge_thickness: 0.07
-    - _fow_radius: 2
+    - _fow_radius: 80
     - _noise_scale: 2
     - _noise_width: 1
     - _ping_radius: 30
@@ -34,8 +34,8 @@ Material:
     - Vector3_5E0F6F51: {r: 0, g: 0, b: 0, a: 0}
     - Vector3_C8CF6F4D: {r: 0, g: 0, b: 0, a: 0}
     - _Player_Pos: {r: 0.02, g: 0, b: 0, a: 0}
-    - _base_color: {r: 0.27058825, g: 0.7411765, b: 0.8862745, a: 1}
-    - _edge_color: {r: 0.9411765, g: 8.156863, b: 12.172549, a: 1}
+    - _base_color: {r: 0.62352943, g: 0.40392157, b: 0.85882354, a: 1}
+    - _edge_color: {r: 5.521569, g: 2.1960785, b: 11.356863, a: 1}
     - _ping_color: {r: 0.9150943, g: 0.19424175, b: 0.20062102, a: 1}
-    - _ping_origin: {r: -32, g: 8, b: 32, a: 0}
+    - _ping_origin: {r: 0, g: 6, b: 15, a: 0}
     - _player_pos: {r: 0, g: 0, b: 0, a: 0}

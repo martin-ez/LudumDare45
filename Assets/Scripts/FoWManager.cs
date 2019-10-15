@@ -31,7 +31,6 @@ public class FoWManager : MonoBehaviour
         {
             instance = this;
             cameraFollow = FindObjectOfType<CameraFollow>();
-            DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -69,8 +68,8 @@ public class FoWManager : MonoBehaviour
     {
         fowMat.SetVector(PLAYER_POS, Vector3.zero);
         collectableMat.SetVector(PLAYER_POS, Vector3.zero);
-        fowMat.SetFloat(RADIUS, 2f);
-        collectableMat.SetFloat(RADIUS, 2f);
+        fowMat.SetFloat(RADIUS, 80f);
+        collectableMat.SetFloat(RADIUS, 80f);
     }
 
     public IEnumerator AnimateFocus(bool lose, float value, float duration)

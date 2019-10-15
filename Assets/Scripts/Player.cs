@@ -32,10 +32,10 @@ public class Player : MonoBehaviour
         playerMat.SetFloat("_effect", 3);
     }
 
-    public void Appear()
+    public void Appear(float time)
     {
         model.gameObject.SetActive(true);
-        StartCoroutine(AnimateDissolve(true, 6f));
+        StartCoroutine(AnimateDissolve(true, time));
     }
 
     public void Disappear()
@@ -99,6 +99,7 @@ public class Player : MonoBehaviour
     IEnumerator RecoverAnimation()
     {
         Toggle();
+        transform.SetParent(null);
         StartCoroutine(FoWManager.instance.AnimateFocus(true, 30f, 1.5f));
         yield return StartCoroutine(AnimateDissolve(false, 0.75f));
 
